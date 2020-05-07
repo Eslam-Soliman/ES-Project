@@ -1,0 +1,26 @@
+--cpu Cortex-M3
+"es-project\startup_stm32f103xb.o"
+"es-project\main.o"
+"es-project\stm32f1xx_it.o"
+"es-project\stm32f1xx_hal_msp.o"
+"es-project\stm32f1xx_hal_gpio_ex.o"
+"es-project\stm32f1xx_hal_adc.o"
+"es-project\stm32f1xx_hal_adc_ex.o"
+"es-project\stm32f1xx_hal.o"
+"es-project\stm32f1xx_hal_rcc.o"
+"es-project\stm32f1xx_hal_rcc_ex.o"
+"es-project\stm32f1xx_hal_gpio.o"
+"es-project\stm32f1xx_hal_dma.o"
+"es-project\stm32f1xx_hal_cortex.o"
+"es-project\stm32f1xx_hal_pwr.o"
+"es-project\stm32f1xx_hal_flash.o"
+"es-project\stm32f1xx_hal_flash_ex.o"
+"es-project\stm32f1xx_hal_exti.o"
+"es-project\stm32f1xx_hal_tim.o"
+"es-project\stm32f1xx_hal_tim_ex.o"
+"es-project\stm32f1xx_hal_uart.o"
+"es-project\system_stm32f1xx.o"
+--library_type=microlib --strict --scatter "ES-Project\ES-Project.sct"
+--summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
+--info sizes --info totals --info unused --info veneers
+--list "ES-Project.map" -o ES-Project\ES-Project.axf
