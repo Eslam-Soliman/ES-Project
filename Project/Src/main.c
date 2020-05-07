@@ -23,8 +23,6 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include <string.h>
-#include <stdio.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -100,22 +98,19 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-	uint32_t adcOut;
-	unsigned char out[16];
+	uint16_t adcOut, err = 0;
+	unsigned char out[] = "\r\nERRRRRRRRRRRRRRRRRRRRR\r\n";
   while (1)
   {
-		HAL_Delay(200);
+		HAL_Delay(10);
 		
 		
 		if(HAL_ADC_PollForConversion(&hadc1,1000)== HAL_OK){
 			adcOut = HAL_ADC_GetValue(&hadc1);
-			memset(out, '\0', sizeof(unsigned char) * 16);
-			sprintf(out, "%X\r\n", adcOut);
-			HAL_UART_Transmit(&huart1,out, sizeof(out), 10);
+			HAL_UART_Transmit(&huart1, (uint8_t*)&adcOut, sizeof(adcOut), 10);
 		}
 		else{
-			unsigned char errorMsg[] = "Error in conversion\r\n";
-			HAL_UART_Transmit(&huart1,errorMsg, sizeof(errorMsg), 10);
+			HAL_UART_Transmit(&huart1,out, sizeof(out), 10);
 		}
     /* USER CODE END WHILE */
 
