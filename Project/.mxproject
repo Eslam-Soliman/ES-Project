@@ -1,7 +1,7 @@
 [PreviousGenFiles]
-HeaderPath=F:/Projects/ES-Project/Inc
+HeaderPath=F:/Projects/ES-Project/Project/Inc
 HeaderFiles=stm32f1xx_it.h;stm32f1xx_hal_conf.h;main.h;
-SourcePath=F:/Projects/ES-Project/Src
+SourcePath=F:/Projects/ES-Project/Project/Src
 SourceFiles=stm32f1xx_it.c;stm32f1xx_hal_msp.c;main.c;
 
 [PreviousLibFiles]

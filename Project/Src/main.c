@@ -23,6 +23,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include <stdlib.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -42,10 +43,15 @@
 /* Private variables ---------------------------------------------------------*/
 ADC_HandleTypeDef hadc1;
 
+TIM_HandleTypeDef htim2;
+
 UART_HandleTypeDef huart1;
 
 /* USER CODE BEGIN PV */
-
+unsigned char rxBuf[2];
+uint32_t samplingRate = 250;
+uint16_t samplingDelay;
+uint8_t running = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -53,12 +59,17 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_USART1_UART_Init(void);
+static void MX_TIM2_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+void reconfigure(){ //rate can be multiples of 1000, max 1Msps
+	samplingDelay = 10000 / samplingRate - 1;
+	__HAL_TIM_SET_AUTORELOAD(&htim2, samplingDelay);
+}
 
 /* USER CODE END 0 */
 
@@ -92,25 +103,21 @@ int main(void)
   MX_GPIO_Init();
   MX_ADC1_Init();
   MX_USART1_UART_Init();
+  MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
+	HAL_UART_Receive_IT(&huart1, rxBuf, 2);
 	HAL_ADC_Start(&hadc1);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-	uint16_t adcOut, err = 0;
-	unsigned char out[] = "\r\nERRRRRRRRRRRRRRRRRRRRR\r\n";
   while (1)
   {
-		HAL_Delay(10);
-		
-		
-		if(HAL_ADC_PollForConversion(&hadc1,1000)== HAL_OK){
-			adcOut = HAL_ADC_GetValue(&hadc1);
-			HAL_UART_Transmit(&huart1, (uint8_t*)&adcOut, sizeof(adcOut), 10);
-		}
-		else{
-			HAL_UART_Transmit(&huart1,out, sizeof(out), 10);
+		if(running){
+			HAL_TIM_Base_Start_IT(&htim2);
+			HAL_Delay(60000);
+			HAL_TIM_Base_Stop_IT(&htim2);
+			running = 0;
 		}
     /* USER CODE END WHILE */
 
@@ -206,6 +213,51 @@ static void MX_ADC1_Init(void)
 }
 
 /**
+  * @brief TIM2 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM2_Init(void)
+{
+
+  /* USER CODE BEGIN TIM2_Init 0 */
+
+  /* USER CODE END TIM2_Init 0 */
+
+  TIM_ClockConfigTypeDef sClockSourceConfig = {0};
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
+
+  /* USER CODE BEGIN TIM2_Init 1 */
+
+  /* USER CODE END TIM2_Init 1 */
+  htim2.Instance = TIM2;
+  htim2.Init.Prescaler = 799;
+  htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim2.Init.Period = 0;
+  htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim2) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+  if (HAL_TIM_ConfigClockSource(&htim2, &sClockSourceConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim2, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM2_Init 2 */
+
+  /* USER CODE END TIM2_Init 2 */
+
+}
+
+/**
   * @brief USART1 Initialization Function
   * @param None
   * @retval None
@@ -252,6 +304,24 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
+	uint32_t command = atoi(rxBuf);
+	switch(command){
+		case 0: 
+			reconfigure();
+			running = 1; 
+			break;
+		default: 
+			samplingRate = 50 * command;
+			break;
+	}
+	HAL_UART_Receive_IT(&huart1, rxBuf, 2);
+}
+
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
+	uint16_t adcOut = HAL_ADC_GetValue(&hadc1);
+	HAL_UART_Transmit_IT(&huart1, (uint8_t*)&adcOut, sizeof(adcOut));
+}
 
 /* USER CODE END 4 */
 
