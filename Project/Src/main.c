@@ -51,7 +51,9 @@ UART_HandleTypeDef huart1;
 unsigned char rxBuf[2];
 uint32_t samplingRate = 250;
 uint16_t samplingDelay;
-uint8_t running = 0;
+uint8_t running = 1;
+uint16_t adcOut;
+unsigned char kk[] = "man\r\n";
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -106,7 +108,8 @@ int main(void)
   MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
 	HAL_UART_Receive_IT(&huart1, rxBuf, 2);
-	HAL_ADC_Start(&hadc1);
+	//HAL_ADC_Start(&hadc1);
+	reconfigure();
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -188,7 +191,7 @@ static void MX_ADC1_Init(void)
   */
   hadc1.Instance = ADC1;
   hadc1.Init.ScanConvMode = ADC_SCAN_DISABLE;
-  hadc1.Init.ContinuousConvMode = ENABLE;
+  hadc1.Init.ContinuousConvMode = DISABLE;
   hadc1.Init.DiscontinuousConvMode = DISABLE;
   hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;
   hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
@@ -319,7 +322,15 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
 }
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
-	uint16_t adcOut = HAL_ADC_GetValue(&hadc1);
+	HAL_ADC_Start_IT(&hadc1);
+	//unsigned char kk[] = "man\r\n";
+	//HAL_UART_Transmit_IT(&huart1, kk, sizeof(kk));
+	//uint16_t adcOut = HAL_ADC_GetValue(&hadc1);
+	//HAL_UART_Transmit_IT(&huart1, (uint8_t*)&adcOut, sizeof(adcOut));
+}
+
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc){
+	adcOut = HAL_ADC_GetValue(&hadc1);
 	HAL_UART_Transmit_IT(&huart1, (uint8_t*)&adcOut, sizeof(adcOut));
 }
 
