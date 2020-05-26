@@ -9,11 +9,13 @@ from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationTool
 from matplotlib.backend_bases import key_press_handler
 from matplotlib.figure import Figure
 
+
+samplingRateOptions = ["25", "50", "100", "200"] 
+
 myDPI = 100
 xVals = range(0,1000)
 yVals = [0] * 1000
 listening = 1
-count = 0
 news = queue.Queue()
 
 window = tk.Tk()
@@ -22,6 +24,9 @@ t = np.arange(0, 3, .01)
 fig.add_subplot(111).plot(xVals, yVals)
 axes = fig.gca()
 axes.set_ylim(0,4095)
+
+variable = tk.StringVar(window)
+variable.set(samplingRateOptions[0]) # default value
 
 canvas = FigureCanvasTkAgg(fig, master=window)
 ser = serial.Serial('COM3', 115200)  # open serial port
@@ -39,17 +44,19 @@ def updateChart():
 
 def listen():
     while listening:
-        global count
         b = ser.read(2)
-        count += 1
         i = int.from_bytes(b, "little")
         news.put(i)
 
 def on_closing():
     global listening
     listening = 0
-    print(count)
     window.destroy()
+
+def startReceiving():
+    ser.write(bytes('0', 'ascii'))
+    samplingRate = str(int(int(variable.get()) / 25))
+    ser.write(bytes(samplingRate, 'ascii'))
 
 def main():
     window.geometry("800x600")
@@ -57,8 +64,20 @@ def main():
     canvas.draw()
     canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=0)
     window.protocol("WM_DELETE_WINDOW", on_closing)
+
+    startB = tk.Button(window, text ="Collect Data", command = startReceiving, pady=5)
+    samplingRateL = tk.Label(window, text="Sampling Rate:")
+    samplingList = tk.OptionMenu(window, variable, *samplingRateOptions)
+
+    startB.pack()
+    samplingRateL.pack()
+    samplingList.pack()
+
+    startB.place(relx=0.8, rely=0.6)
+    samplingRateL.place(relx=0.05, rely=0.6)
+    samplingList.place(relx=0.2, rely=0.6)
+
     listenThread = threading.Thread(target=listen).start()
-    #window.mainloop()
     while listening:
         updateChart()
         window.update_idletasks()

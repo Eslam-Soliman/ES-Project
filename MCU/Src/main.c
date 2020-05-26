@@ -48,10 +48,10 @@ TIM_HandleTypeDef htim2;
 UART_HandleTypeDef huart1;
 
 /* USER CODE BEGIN PV */
-unsigned char rxBuf[2];
+unsigned char rxBuf[1];
 uint32_t samplingRate = 25;
 uint16_t samplingDelay;
-uint8_t running = 1;
+uint8_t running = 0;
 uint16_t adcOut;
 unsigned char kk[] = "man\r\n";
 /* USER CODE END PV */
@@ -68,7 +68,7 @@ static void MX_TIM2_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-void reconfigure(){ //rate can be multiples of 1000, max 1Msps
+void reconfigure(){ 
 	samplingDelay = 10000 / samplingRate - 1;
 	__HAL_TIM_SET_AUTORELOAD(&htim2, samplingDelay);
 }
@@ -107,7 +107,7 @@ int main(void)
   MX_USART1_UART_Init();
   MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
-	HAL_UART_Receive_IT(&huart1, rxBuf, 2);
+	HAL_UART_Receive_IT(&huart1, rxBuf, 1);
 	//HAL_ADC_Start(&hadc1);
 	reconfigure();
   /* USER CODE END 2 */
@@ -315,10 +315,10 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
 			running = 1; 
 			break;
 		default: 
-			samplingRate = 50 * command;
+			samplingRate = 25 * command;
 			break;
 	}
-	HAL_UART_Receive_IT(&huart1, rxBuf, 2);
+	HAL_UART_Receive_IT(&huart1, rxBuf, 1);
 }
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
