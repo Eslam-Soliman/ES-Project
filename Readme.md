@@ -10,6 +10,16 @@ Real-time ECG plotter for AD8232 sensor, using the STM32F103C8T6 microcontroller
 
 - The ability to ask for calculating and displaying the BPM (beats per minute)
 
+
+<h2>
+
+```diff
+- Important:  COM Port is hard-coded, needs to be changed manually.
+```
+
+</h2>
+
+
 **Project Architecture:**
 
 ![](https://lh4.googleusercontent.com/uSem3_r5AdF0mnwaVuIvEHhCco8BdfZKmQjlJfvmsQ1VoYF6gMLpb0FMf_Vaz92Zi_aOO99LV3dznOhWpvNL0KAwtCJOzxacsmzK5PN_V-CrfOXFVGFLrkhn7Tb02UBiWxabyXU2d0k)
