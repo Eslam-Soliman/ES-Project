@@ -16,6 +16,7 @@ myDPI = 100
 xVals = range(0,500)
 yVals = [0] * 500
 listening = 1
+bpmThreshold = 2400
 news = queue.Queue()
 
 window = tk.Tk()
@@ -27,20 +28,22 @@ axes.set_ylim(0,4095)
 
 variable = tk.StringVar(window)
 variable.set(samplingRateOptions[0])
+samplingList = tk.OptionMenu(window, variable, *samplingRateOptions)
 bpmVar = tk.StringVar(window)
 bpmVar.set("N/A")
 
 canvas = FigureCanvasTkAgg(fig, master=window)
 ser = serial.Serial('COM3', 115200)  # open serial port
 
-count = 0
-
 #for bpm
-higher = 0
+bHigh = 0
 bSum = 0
 
 def updateChart():
-    if news.empty(): return
+    if news.empty(): 
+        samplingList.configure(state="active")
+        return
+    samplingList.configure(state="disabled")
     newVal = news.get()
     fig.clear()
     yVals.pop(0)
@@ -51,21 +54,22 @@ def updateChart():
     canvas.draw()
 
 def listen():
-    global bSum, higher, count
+    global bSum, bHigh
     while listening:
         b = ser.read(2)
-        count += 1
         i = int.from_bytes(b, "little")
-        if(i > 2500 and higher == 0):
-            higher = 1
+        #bpm calc
+        if(i > bpmThreshold and bHigh == 0): 
+            bHigh = 1
             bSum += 1
-        if(i < 2500):
-            higher = 0
+        if(i <= bpmThreshold):
+            bHigh = 0
+        bLast = i
+        #end bpm calc
         news.put(i)
 
 def on_closing():
-    global listening, count
-    print(count)
+    global listening
     listening = 0
     window.destroy()
 
@@ -93,7 +97,6 @@ def main():
     samplingRateL = tk.Label(window, text="Sampling Rate:")
     bpmL = tk.Label(window, text="BPM:")
     bpmVal = tk.Label(window, textvariable=bpmVar)
-    samplingList = tk.OptionMenu(window, variable, *samplingRateOptions)
 
     startB.pack()
     bpmB.pack()
