@@ -15,7 +15,7 @@ myDPI = 100
 xVals = range(0,500)
 yVals = [0] * 500
 listening = 1
-bpmThreshold = 2350
+bpmThreshold = 2300
 news = queue.Queue()
 
 #for bpm
