@@ -13,8 +13,8 @@ from matplotlib.figure import Figure
 samplingRateOptions = ["25", "50", "100", "200"] 
 
 myDPI = 100
-xVals = range(0,1000)
-yVals = [0] * 1000
+xVals = range(0,500)
+yVals = [0] * 500
 listening = 1
 news = queue.Queue()
 
@@ -26,10 +26,18 @@ axes = fig.gca()
 axes.set_ylim(0,4095)
 
 variable = tk.StringVar(window)
-variable.set(samplingRateOptions[0]) # default value
+variable.set(samplingRateOptions[0])
+bpmVar = tk.StringVar(window)
+bpmVar.set("N/A")
 
 canvas = FigureCanvasTkAgg(fig, master=window)
 ser = serial.Serial('COM3', 115200)  # open serial port
+
+count = 0
+
+#for bpm
+higher = 0
+bSum = 0
 
 def updateChart():
     if news.empty(): return
@@ -43,20 +51,35 @@ def updateChart():
     canvas.draw()
 
 def listen():
+    global bSum, higher, count
     while listening:
         b = ser.read(2)
+        count += 1
         i = int.from_bytes(b, "little")
+        if(i > 2500 and higher == 0):
+            higher = 1
+            bSum += 1
+        if(i < 2500):
+            higher = 0
         news.put(i)
 
 def on_closing():
-    global listening
+    global listening, count
+    print(count)
     listening = 0
     window.destroy()
 
 def startReceiving():
-    ser.write(bytes('0', 'ascii'))
+    global bSum
+    bSum = 0
     samplingRate = str(int(int(variable.get()) / 25))
     ser.write(bytes(samplingRate, 'ascii'))
+    ser.write(bytes('0', 'ascii'))
+
+def displayBPM():
+    bpmVar.set(str(bSum))
+    
+
 
 def main():
     window.geometry("800x600")
@@ -66,16 +89,25 @@ def main():
     window.protocol("WM_DELETE_WINDOW", on_closing)
 
     startB = tk.Button(window, text ="Collect Data", command = startReceiving, pady=5)
+    bpmB = tk.Button(window, text ="Get BPM", command = displayBPM, pady=5)
     samplingRateL = tk.Label(window, text="Sampling Rate:")
+    bpmL = tk.Label(window, text="BPM:")
+    bpmVal = tk.Label(window, textvariable=bpmVar)
     samplingList = tk.OptionMenu(window, variable, *samplingRateOptions)
 
     startB.pack()
+    bpmB.pack()
     samplingRateL.pack()
     samplingList.pack()
+    bpmL.pack()
+    bpmVal.pack()
 
     startB.place(relx=0.8, rely=0.6)
+    bpmB.place(relx=0.8, rely=0.7)
     samplingRateL.place(relx=0.05, rely=0.6)
     samplingList.place(relx=0.2, rely=0.6)
+    bpmL.place(relx=0.4, rely=0.55)
+    bpmVal.place(relx=0.5, rely=0.55)
 
     listenThread = threading.Thread(target=listen).start()
     while listening:

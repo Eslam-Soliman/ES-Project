@@ -323,10 +323,6 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 	HAL_ADC_Start_IT(&hadc1);
-	//unsigned char kk[] = "man\r\n";
-	//HAL_UART_Transmit_IT(&huart1, kk, sizeof(kk));
-	//uint16_t adcOut = HAL_ADC_GetValue(&hadc1);
-	//HAL_UART_Transmit_IT(&huart1, (uint8_t*)&adcOut, sizeof(adcOut));
 }
 
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc){
