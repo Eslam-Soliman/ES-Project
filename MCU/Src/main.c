@@ -49,7 +49,7 @@ UART_HandleTypeDef huart1;
 
 /* USER CODE BEGIN PV */
 unsigned char rxBuf[2];
-uint32_t samplingRate = 250;
+uint32_t samplingRate = 25;
 uint16_t samplingDelay;
 uint8_t running = 1;
 uint16_t adcOut;
