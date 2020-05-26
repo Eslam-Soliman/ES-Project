@@ -97,7 +97,7 @@ def main():
     canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=0)
     window.protocol("WM_DELETE_WINDOW", on_closing)
 
-    samplingRateL = tk.Label(window, text="Sampling Rate:")
+    samplingRateL = tk.Label(window, text="Sampling Rate (Hz):")
     bpmL = tk.Label(window, text="BPM:")
     bpmVal = tk.Label(window, textvariable=bpmVar)
 
