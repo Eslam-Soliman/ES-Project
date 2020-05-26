@@ -12,7 +12,7 @@ Real-time ECG plotter for AD8232 sensor, using the STM32F103C8T6 microcontroller
 
 **Project Architecture:**
 
-**![](https://lh4.googleusercontent.com/uSem3_r5AdF0mnwaVuIvEHhCco8BdfZKmQjlJfvmsQ1VoYF6gMLpb0FMf_Vaz92Zi_aOO99LV3dznOhWpvNL0KAwtCJOzxacsmzK5PN_V-CrfOXFVGFLrkhn7Tb02UBiWxabyXU2d0k)
+![](https://lh4.googleusercontent.com/uSem3_r5AdF0mnwaVuIvEHhCco8BdfZKmQjlJfvmsQ1VoYF6gMLpb0FMf_Vaz92Zi_aOO99LV3dznOhWpvNL0KAwtCJOzxacsmzK5PN_V-CrfOXFVGFLrkhn7Tb02UBiWxabyXU2d0k)
 
 The project consists of two main components:
 
@@ -104,7 +104,7 @@ PC-to-MCU:
 
  **CubeMX timer configurations:**
 
-**![](https://lh6.googleusercontent.com/4MyuwPFjYwnINnVG5e7I-mScgv-HTP9sSk3_FdtA7RCLbB0omPvZVox52v-xMC2VRyjVS2IT1lvZ5rAUevEGubIzi3eHY-_1Kj-z-c-cSuIDZtwi3D2FvqzuEptFpRS-85SYzRnIyUw)
+![](https://lh6.googleusercontent.com/4MyuwPFjYwnINnVG5e7I-mScgv-HTP9sSk3_FdtA7RCLbB0omPvZVox52v-xMC2VRyjVS2IT1lvZ5rAUevEGubIzi3eHY-_1Kj-z-c-cSuIDZtwi3D2FvqzuEptFpRS-85SYzRnIyUw)
 
 **Limitations:**
 
