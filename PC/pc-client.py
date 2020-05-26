@@ -9,15 +9,28 @@ from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationTool
 from matplotlib.backend_bases import key_press_handler
 from matplotlib.figure import Figure
 
-
 samplingRateOptions = ["25", "50", "100", "200"] 
 
 myDPI = 100
 xVals = range(0,500)
 yVals = [0] * 500
 listening = 1
-bpmThreshold = 2400
+bpmThreshold = 2350
 news = queue.Queue()
+
+#for bpm
+bHigh = 0
+bSum = 0
+
+def startReceiving():
+    global bSum
+    bSum = 0
+    samplingRate = str(int(int(variable.get()) / 25))
+    ser.write(bytes(samplingRate, 'ascii'))
+    ser.write(bytes('0', 'ascii'))
+
+def updateBPM():
+    bpmVar.set(str(bSum))
 
 window = tk.Tk()
 fig = Figure(figsize=(800/myDPI, 300/myDPI), dpi=myDPI)
@@ -29,21 +42,25 @@ axes.set_ylim(0,4095)
 variable = tk.StringVar(window)
 variable.set(samplingRateOptions[0])
 samplingList = tk.OptionMenu(window, variable, *samplingRateOptions)
+startB = tk.Button(window, text ="Collect Data", command = startReceiving, pady=5)
 bpmVar = tk.StringVar(window)
 bpmVar.set("N/A")
+
+
+bpmB = tk.Button(window, text ="Get BPM", command = updateBPM, pady=5)
 
 canvas = FigureCanvasTkAgg(fig, master=window)
 ser = serial.Serial('COM3', 115200)  # open serial port
 
-#for bpm
-bHigh = 0
-bSum = 0
-
 def updateChart():
     if news.empty(): 
         samplingList.configure(state="active")
+        bpmB.configure(state="active")
+        startB.configure(state="active")
         return
     samplingList.configure(state="disabled")
+    bpmB.configure(state="disabled")
+    startB.configure(state="disabled")
     newVal = news.get()
     fig.clear()
     yVals.pop(0)
@@ -72,19 +89,7 @@ def on_closing():
     global listening
     listening = 0
     window.destroy()
-
-def startReceiving():
-    global bSum
-    bSum = 0
-    samplingRate = str(int(int(variable.get()) / 25))
-    ser.write(bytes(samplingRate, 'ascii'))
-    ser.write(bytes('0', 'ascii'))
-
-def displayBPM():
-    bpmVar.set(str(bSum))
     
-
-
 def main():
     window.geometry("800x600")
     window.title('ES ECG')
@@ -92,8 +97,6 @@ def main():
     canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=0)
     window.protocol("WM_DELETE_WINDOW", on_closing)
 
-    startB = tk.Button(window, text ="Collect Data", command = startReceiving, pady=5)
-    bpmB = tk.Button(window, text ="Get BPM", command = displayBPM, pady=5)
     samplingRateL = tk.Label(window, text="Sampling Rate:")
     bpmL = tk.Label(window, text="BPM:")
     bpmVal = tk.Label(window, textvariable=bpmVar)
